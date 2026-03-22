@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flex Social Mini</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{background:#0f172a;color:white;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px}
+.container{width:100%;max-width:500px;background:#020617;padding:20px;border-radius:16px;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+h1{text-align:center;margin-bottom:15px}
+input,textarea,button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px}
+input,textarea{background:#020617;color:white;border:1px solid #1e293b}
+button{background:#2563eb;color:white;font-weight:600;cursor:pointer}
+button:hover{background:#1d4ed8}
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:15px}
+.profile-card{background:#1e293b;padding:10px;border-radius:10px;text-align:center;cursor:pointer}
+.profile-card img{width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:5px}
+.profile-details{background:#1e293b;padding:15px;border-radius:10px;margin-top:10px}
+.comment{background:#020617;border:1px solid #334155;padding:10px;border-radius:10px;margin-top:5px}
+.reaction{margin-top:10px}
+.reaction span{margin-right:10px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="container" id="auth">
+<h1>Flex Social Mini</h1>
+<input id="username" placeholder="Username" />
+<input id="password" type="password" placeholder="Password" />
+<button onclick="signup()">Signup</button>
+<button onclick="login()">Login</button>
+</div>
+
+<div class="container" id="home" style="display:none">
+<h1>All Users</h1>
+<div class="profile-grid" id="profileGrid"></div>
+<button onclick="logout()">Logout</button>
+</div>
+
+<div class="container" id="profilePage" style="display:none">
+<h1 id="profileName"></h1>
+<div class="profile-details" id="profileDetails">
+<p id="detailsText">This is profile details section.</p>
+<div class="reaction">
+<span onclick="react('like')">👍 Like (<span id="likeCount">0</span>)</span>
+<span onclick="react('love')">❤️ Love (<span id="loveCount">0</span>)</span>
+</div>
+<textarea id="commentInput" placeholder="Add a comment..."></textarea>
+<button onclick="addComment()">Comment</button>
+<div id="commentsList"></div>
+<button onclick="backHome()">Back</button>
+</div>
+</div>
+
+<script>
+let currentUser=null;
+let users=['Alice','Bob','Charlie','Zihad'];
+let reactions={};
+let comments={};
+
+function signup(){
+let u=username.value;
+let p=password.value;
+localStorage.setItem("user_"+u,p);
+alert("Account created");
+}
+
+function login(){
+let u=username.value;
+let p=password.value;
+let saved=localStorage.getItem("user_"+u);
+if(saved===p){currentUser=u;showHome();}else alert("Wrong login");
+}
+
+function showHome(){
+auth.style.display="none";
+home.style.display="block";
+profileGrid.innerHTML="";
+users.forEach(u=>{
+let div=document.createElement('div');
+div.className='profile-card';
+div.innerHTML=`<img src='https://via.placeholder.com/60' /><p>${u}</p>`;
+div.onclick=()=>viewProfile(u);
+profileGrid.appendChild(div);
+});
+}
+
+function viewProfile(u){
+home.style.display='none';
+profilePage.style.display='block';
+profileName.innerText=u;
+detailsText.innerText=`Details of ${u}`;
+if(!reactions[u]) reactions[u]={like:0,love:0};
+likeCount.innerText=reactions[u].like;
+loveCount.innerText=reactions[u].love;
+if(!comments[u]) comments[u]=[];
+renderComments(u);
+}
+
+function backHome(){
+profilePage.style.display='none';
+home.style.display='block';
+}
+
+function react(type){
+let u=profileName.innerText;
+reactions[u][type]++;
+likeCount.innerText=reactions[u].like;
+loveCount.innerText=reactions[u].love;
+}
+
+function addComment(){
+let u=profileName.innerText;
+let txt=commentInput.value;
+if(txt){comments[u].push(currentUser+": "+txt);commentInput.value='';renderComments(u);}
+}
+
+function renderComments(u){
+commentsList.innerHTML='';
+comments[u].forEach(c=>{
+let div=document.createElement('div');
+div.className='comment';
+div.innerText=c;
+commentsList.appendChild(div);
+});
+}
+
+function logout(){location.reload();}
+</script>
+
+</body>
+</html>
